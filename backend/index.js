@@ -28,17 +28,14 @@ const port = process.env.PORT || 5000;
 // Configurar middleware para analizar JSON en las solicitudes
 app.use(express.json());
 // Configurar CORS para admitir cualquier origen
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
+app.use(cors());
 // Configurar cookie-parser
 app.use(cookieParser());
 
 // Sincronizar base de datos
 (async () => {
   try {
-    await sequelize.sync({ alter: true }); // Sincronizar sin eliminar datos
+    await sequelize.sync(); // Sincronizar sin eliminar datos
     console.log("Base de datos sincronizada");
   } catch (error) {
     console.error("Error al sincronizar la base de datos:", error);
