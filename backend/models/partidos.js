@@ -18,7 +18,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     jugador1_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'users',
         key: 'id'
@@ -26,7 +26,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     jugador2_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'users',
         key: 'id'

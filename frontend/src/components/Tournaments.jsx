@@ -237,22 +237,22 @@ function Tournaments() {
   }
 
   const handleSimulateTournament = async (tournamentId) => {
-    if (window.confirm('¿Estás seguro de que quieres simular este torneo? Se actualizarán los rankings de los jugadores.')) {
+    if (window.confirm('¿Estás seguro de que quieres generar el bracket? Podrás ingresar los resultados manualmente.')) {
       try {
-        const res = await fetch(`${API_URL}/api/torneos/${tournamentId}/simular`, {
+        const res = await fetch(`${API_URL}/api/torneos/${tournamentId}/generar-bracket`, {
           method: 'POST',
           credentials: 'include'
         })
         const body = await res.json()
 
         if (body.ok) {
-          setSuccess(`Torneo simulado correctamente. Ganador: ${body.datos.winner} (75 pts). Subcampeón: ${body.datos.finalist} (50 pts). Semifinalistas: 25 pts.`)
+          setSuccess('Bracket generado. Ahora ingresa los resultados manualmente.')
           await fetchTournaments()
-          setTimeout(() => setSuccess(''), 8000)
-          // Redirigir al bracket después de la simulación
+          setTimeout(() => setSuccess(''), 5000)
+          // Redirigir al bracket para ingresar resultados
           navigate(`/torneos/${tournamentId}/bracket`)
         } else {
-          setError(body.mensaje || 'Error simulando torneo')
+          setError(body.mensaje || 'Error generando bracket')
         }
       } catch (err) {
         setError('No se pudo conectar con el servidor')
@@ -478,7 +478,7 @@ function Tournaments() {
                               className="btn btn-sm btn-primary"
                               onClick={() => handleSimulateTournament(tournament.id)}
                             >
-                              Simular Torneo
+                              Generar Bracket
                             </button>
                           )}
                         </>

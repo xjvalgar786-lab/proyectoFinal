@@ -107,6 +107,356 @@ class TorneosController {
     }
   }
 
+  async generateBracket(req, res) {
+    try {
+      const { id } = req.params;
+      const { torneos, inscripciones, users, partidos } = initModels(sequelize);
+
+      logMensaje(`Iniciando generación de bracket para torneo ${id}`);
+
+      const torneo = await torneos.findByPk(id);
+      if (!torneo) {
+        return res.status(404).json(Respuesta.error(null, "Torneo no encontrado"));
+      }
+
+      if (torneo.estado !== 'abierto') {
+        return res.status(400).json(Respuesta.error(null, `El torneo no está en estado abierto. Estado actual: ${torneo.estado}`));
+      }
+
+      // Obtener los inscritos
+      const inscritos = await inscripciones.findAll({
+        where: { torneo_id: id, estado: 'activa' },
+        include: [{ model: users, as: 'usuario', attributes: ['id', 'nombre', 'apellido'] }]
+      });
+
+      logMensaje(`Inscritos encontrados: ${inscritos.length}`);
+
+      if (inscritos.length !== 8) {
+        return res.status(400).json(Respuesta.error(null, `El torneo debe tener exactamente 8 jugadores. Actualmente tiene ${inscritos.length}`));
+      }
+
+      // Mezclar jugadores aleatoriamente
+      const players = inscritos.map(i => i.usuario).sort(() => Math.random() - 0.5);
+      logMensaje(`Jugadores: ${players.map(p => p.nombre).join(', ')}`);
+
+      try {
+        // Crear SOLO los partidos de cuartos de final
+        for (let i = 0; i < 8; i += 2) {
+          const match = await partidos.create({
+            torneo_id: parseInt(id),
+            jugador1_id: players[i].id,
+            jugador2_id: players[i + 1].id,
+            ronda: 1,
+            resultado_jugador1: null,
+            resultado_jugador2: null,
+            ganador_id: null,
+            estado: 'pendiente'
+          });
+          logMensaje(`Cuarto creado: ${players[i].nombre} vs ${players[i + 1].nombre}`);
+        }
+
+        // Cambiar estado del torneo
+        await torneo.update({ estado: 'en_curso' });
+        logMensaje(`Torneo ${id} actualizado a estado en_curso`);
+
+        logMensaje(`Bracket generado exitosamente para torneo ${id}`);
+
+        return res.status(200).json(Respuesta.exito({ mensaje: "Bracket generado correctamente. Ingresa los resultados de los cuartos de final." }, "Bracket generado"));
+      } catch (innerError) {
+        logMensaje(`Error al crear partidos: ${innerError.message}`);
+        console.error(innerError);
+        throw innerError;
+      }
+    } catch (error) {
+      logMensaje("Error en generateBracket: " + error.message);
+      console.error(error);
+      return res.status(500).json(Respuesta.error(null, `Error al generar bracket: ${error.message}`));
+    }
+  }
+
+  async updateMatchResult(req, res) {
+  console.log("ID PARTIDO:", req.params.id);
+  console.log("BODY:", req.body);
+
+  try {
+    const { id } = req.params;
+    const { resultado_jugador1, resultado_jugador2, ganador_id } = req.body;
+
+    const { partidos, users } = initModels(sequelize);
+
+    const r1 = Number(resultado_jugador1);
+    const r2 = Number(resultado_jugador2);
+    const winnerId = Number(ganador_id);
+
+    // VALIDACIÓN SIMPLE
+    if (Number.isNaN(r1) || Number.isNaN(r2)) {
+      return res.status(400).json(
+        Respuesta.error(null, "Resultados inválidos")
+      );
+    }
+
+    if (!winnerId) {
+      return res.status(400).json(
+        Respuesta.error(null, "Debes seleccionar un ganador")
+      );
+    }
+
+    const match = await partidos.findByPk(id);
+
+    if (!match) {
+      return res.status(404).json(
+        Respuesta.error(null, "Partido no encontrado")
+      );
+    }
+
+    // UPDATE SIMPLE Y DIRECTO
+    await match.update({
+      resultado_jugador1: r1,
+      resultado_jugador2: r2,
+      ganador_id: winnerId,
+      estado: "jugado"
+    });
+
+    // BUSCAR TODOS LOS PARTIDOS DE ESA RONDA
+const roundMatches = await partidos.findAll({
+  where: {
+    torneo_id: match.torneo_id,
+    ronda: match.ronda
+  },
+  order: [['id', 'ASC']]
+});
+
+// comprobar si toda la ronda terminó
+const allFinished = roundMatches.every(m => m.ganador_id);
+
+if (allFinished) {
+
+  const winners = roundMatches.map(m => m.ganador_id);
+
+  // CUARTOS -> SEMIFINALES
+  if (match.ronda === 1) {
+
+    // evitar duplicados
+    const existingSemis = await partidos.count({
+      where: {
+        torneo_id: match.torneo_id,
+        ronda: 2
+      }
+    });
+
+    if (existingSemis === 0) {
+
+      await partidos.create({
+        torneo_id: match.torneo_id,
+        jugador1_id: winners[0],
+        jugador2_id: winners[1],
+        ronda: 2,
+        estado: 'pendiente'
+      });
+
+      await partidos.create({
+        torneo_id: match.torneo_id,
+        jugador1_id: winners[2],
+        jugador2_id: winners[3],
+        ronda: 2,
+        estado: 'pendiente'
+      });
+    }
+  }
+
+  // SEMIFINALES -> FINAL
+  if (match.ronda === 2) {
+
+    const existingFinal = await partidos.count({
+      where: {
+        torneo_id: match.torneo_id,
+        ronda: 3
+      }
+    });
+
+    if (existingFinal === 0) {
+
+      await partidos.create({
+        torneo_id: match.torneo_id,
+        jugador1_id: winners[0],
+        jugador2_id: winners[1],
+        ronda: 3,
+        estado: 'pendiente'
+      });
+    }
+  }
+}
+
+    console.log("PARTIDO ACTUALIZADO OK");
+
+    const winner = await users.findByPk(winnerId, {
+      attributes: ["id", "nombre", "apellido"]
+    });
+
+    return res.status(200).json(
+      Respuesta.exito(
+        { match, ganador: winner },
+        "Resultado actualizado correctamente"
+      )
+    );
+
+  } catch (error) {
+    console.error("ERROR updateMatchResult:", error);
+    return res.status(500).json(
+      Respuesta.error(null, "Error al actualizar resultado")
+    );
+  }
+}
+
+  async finalizeTournament(req, res) {
+  const { id } = req.params;
+  const { torneos, partidos, users } = initModels(sequelize);
+
+  try {
+
+    // ❌ FIX: antes estabas usando "torneo" antes de declararlo
+    const torneo = await torneos.findByPk(id);
+
+    if (!torneo) {
+      return res.status(404).json(Respuesta.error(null, "Torneo no encontrado"));
+    }
+
+    // ❌ FIX: esta validación estaba fuera de lugar (torneo no existía aún)
+    if (torneo.estado === 'finalizado') {
+      return res.status(400).json(
+        Respuesta.error(null, "El torneo ya fue finalizado")
+      );
+    }
+
+    if (torneo.estado !== 'en_curso') {
+      return res.status(400).json(
+        Respuesta.error(null, "El torneo no está en estado en_curso")
+      );
+    }
+
+    // Obtener todos los partidos
+    const allMatches = await partidos.findAll({
+      where: { torneo_id: id },
+      order: [['ronda', 'ASC'], ['id', 'ASC']]
+    });
+
+    // Verificar final
+    const finalMatch = allMatches.find(m => m.ronda === 3);
+
+    if (!finalMatch || !finalMatch.ganador_id) {
+      return res.status(400).json(
+        Respuesta.error(null, "La final no ha sido completada aún")
+      );
+    }
+
+    // Ganador
+    const winner = await users.findByPk(finalMatch.ganador_id);
+
+    if (!winner) {
+      return res.status(400).json(
+        Respuesta.error(null, "Ganador no encontrado")
+      );
+    }
+
+    // Subcampeón
+    const finalistId =
+      finalMatch.jugador1_id === finalMatch.ganador_id
+        ? finalMatch.jugador2_id
+        : finalMatch.jugador1_id;
+
+    const finalist = await users.findByPk(finalistId);
+
+    if (!finalist) {
+      return res.status(400).json(
+        Respuesta.error(null, "Subcampeón no encontrado")
+      );
+    }
+
+    // Semifinalistas
+    const semiMatches = allMatches.filter(
+      m => m.ronda === 2 && m.ganador_id
+    );
+
+    const semifinalists = semiMatches
+      .map(m => m.ganador_id)
+      .filter(Boolean);
+
+    // Cuartofinalistas
+    const quarterMatches = allMatches.filter(
+      m => m.ronda === 1 && m.ganador_id
+    );
+
+    const quarterfinalists = quarterMatches
+      .map(m => m.ganador_id)
+      .filter(Boolean);
+
+    // PUNTOS
+    const pointsMap = new Map();
+
+    pointsMap.set(winner.id, 75);
+    pointsMap.set(finalist.id, 50);
+
+    semifinalists.forEach(id => {
+      if (id && id !== winner.id && id !== finalist.id) {
+        pointsMap.set(id, 25);
+      }
+    });
+
+    // Todos los participantes
+    const allParticipants = new Set([
+      ...quarterfinalists,
+      ...semifinalists,
+      winner.id,
+      finalist.id
+    ]);
+
+    // ❌ FIX: mejor incremental en vez de set total (evita errores de overwrite)
+    for (const playerId of allParticipants) {
+      if (!playerId) continue;
+
+      const player = await users.findByPk(playerId);
+      if (!player) continue;
+
+      const pointsToAdd = pointsMap.get(playerId) || 0;
+
+      await users.increment(
+        { puntos: pointsToAdd },
+        { where: { id: playerId } }
+      );
+
+      logMensaje(
+        `Jugador ${player.nombre}: +${pointsToAdd} puntos`
+      );
+    }
+
+    // Finalizar torneo
+    await torneo.update({ estado: 'finalizado' }); // ❌ FIX: antes decía "jugado"
+
+    logMensaje(
+      `Torneo ${id} finalizado. Ganador: ${winner.nombre} ${winner.apellido}`
+    );
+
+    return res.status(200).json(
+      Respuesta.exito(
+        {
+          winner: `${winner.nombre} ${winner.apellido}`,
+          finalist: `${finalist.nombre} ${finalist.apellido}`,
+          points: { winner: 75, finalist: 50, semifinalists: 25 }
+        },
+        "Torneo finalizado correctamente"
+      )
+    );
+
+  } catch (error) {
+    logMensaje("Error en finalizeTournament: " + error);
+    console.error(error);
+
+    return res.status(500).json(
+      Respuesta.error(null, "Error al finalizar el torneo")
+    );
+  }
+}
+
   async simulateTournament(req, res) {
     try {
       const { id } = req.params;
@@ -245,7 +595,7 @@ class TorneosController {
       }
 
       // Cambiar estado del torneo a finalizado
-      await torneo.update({ estado: 'finalizado' });
+      await torneo.update({ estado: 'jugado' });
 
       return res.status(200).json(Respuesta.exito({ 
         winner: winner.nombre + ' ' + winner.apellido,

@@ -38,7 +38,7 @@ app.use(cookieParser());
 // Sincronizar base de datos
 (async () => {
   try {
-    await sequelize.sync({ force: true }); // Crear/recrear todas las tablas
+    await sequelize.sync({ alter: true }); // Sincronizar sin eliminar datos
     console.log("Base de datos sincronizada");
   } catch (error) {
     console.error("Error al sincronizar la base de datos:", error);
@@ -63,8 +63,12 @@ app.use("/api/tipos", tipoRoutes);
 app.use(express.static(path.join(__dirname, "public","old_js_vainilla")));
 
 // Middleware catch-all para SPA (Single Page Application) - debe ir al final
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "public", "old_js_vainilla","index.html"));
+app.use((req, res, next) => {
+  if (req.path.startsWith("/api")) return next();
+
+  res.sendFile(
+    path.join(__dirname, "public", "old_js_vainilla", "index.html")
+  );
 });
 
 // Iniciar el servidor
