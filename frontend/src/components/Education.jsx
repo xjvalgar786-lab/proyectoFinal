@@ -28,7 +28,7 @@ function Education() {
 
   const fetchVideos = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/videos-publicas');
+      const response = await fetch('https://mysql-production-afe3.up.railway.app/api/videos-publicas');
       if (!response.ok) {
         throw new Error(`Error ${response.status}`);
       }
@@ -44,7 +44,7 @@ function Education() {
 
   const fetchArchivedVideos = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/videos/archivados/todos', {
+      const response = await fetch('https://mysql-production-afe3.up.railway.app/api/videos/archivados/todos', {
         headers: {
           'Content-Type': 'application/json'
         },
@@ -72,8 +72,8 @@ function Education() {
     try {
       const method = editingId ? 'PUT' : 'POST';
       const url = editingId 
-        ? `http://localhost:5000/api/videos/${editingId}`
-        : 'http://localhost:5000/api/videos';
+        ? 'https://mysql-production-afe3.up.railway.app/api/videos/${editingId}'
+        : 'https://mysql-production-afe3.up.railway.app/api/videos';
 
       const response = await fetch(url, {
         method,
@@ -111,7 +111,7 @@ function Education() {
   const handleDelete = async (id) => {
     if (window.confirm('¿Está seguro de que quiere archivar este video?')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/videos/${id}`, {
+        const response = await fetch(`https://mysql-production-afe3.up.railway.app/api/videos/${id}`, {
           method: 'DELETE',
           credentials: 'include'
         });
@@ -130,7 +130,7 @@ function Education() {
   const handleArchive = async (id) => {
     if (window.confirm('¿Está seguro de que quiere archivar este video?')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/videos/${id}`, {
+        const response = await fetch(`https://mysql-production-afe3.up.railway.app/api/videos/${id}`, {
           method: 'DELETE',
           credentials: 'include'
         });
@@ -150,7 +150,7 @@ function Education() {
   const handleRestore = async (id) => {
     if (window.confirm('¿Está seguro de que quiere restaurar este video como publicado?')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/videos/${id}/restore`, {
+        const response = await fetch(`https://mysql-production-afe3.up.railway.app/api/videos/${id}/restore`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json'
@@ -174,7 +174,7 @@ function Education() {
   const handlePermanentDelete = async (id) => {
     if (window.confirm('⚠️ ¿Está seguro de que quiere ELIMINAR PERMANENTEMENTE este video de la base de datos? Esta acción no se puede deshacer.')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/videos/${id}/permanent`, {
+        const response = await fetch(`https://mysql-production-afe3.up.railway.app/api/videos/${id}/permanent`, {
           method: 'DELETE',
           credentials: 'include'
         });
