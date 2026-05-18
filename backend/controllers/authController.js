@@ -104,6 +104,7 @@ class AuthController {
         httpOnly: true,
         secure: true,
          path: "/",
+         domain: ".railway.app",
         sameSite: "none",
         maxAge: 24 * 60 * 60 * 1000 // 24 horas
       });
