@@ -36,7 +36,11 @@ const allowedOrigins = [
   "http://localhost:19006",
   "http://localhost:19000",
   "https://backend-production-966f2.up.railway.app",
+  "https://proyecto-final-frontend-five.vercel.app",
 ];
+if (process.env.FRONTEND_URL && !allowedOrigins.includes(process.env.FRONTEND_URL)) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -47,9 +51,9 @@ app.use(
         return callback(null, true);
       }
 
-      return callback(null, true);
+      return callback(new Error("Not allowed by CORS"));
     },
-    credentials: false,
+    credentials: true,
   })
 );
 // Configurar cookie-parser
