@@ -41,15 +41,7 @@ app.use(cookieParser());
   }
 })();
 
-// Sincronizar base de datos
-(async () => {
-  try {
-    await sequelize.sync(); // Sincronizar sin eliminar datos
-    console.log("Base de datos sincronizada");
-  } catch (error) {
-    console.error("Error al sincronizar la base de datos:", error);
-  }
-})();
+
 
 // Configurar rutas de la API Rest
 app.use("/api/auth", authRoutes);
