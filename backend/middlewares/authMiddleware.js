@@ -5,6 +5,8 @@ const { logMensaje } = require("../utils/logger");
 
 const verifyToken = (req, res, next) => {
   try {
+    console.log("COOKIES:", req.cookies);
+console.log("TOKEN:", req.cookies?.token);
     const token = req.cookies.token;
 
     if (!token) {
