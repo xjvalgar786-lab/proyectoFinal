@@ -2,7 +2,7 @@ const SequelizeAuto = require("sequelize-auto");
 const config = require('./config');
 
 const auto = new SequelizeAuto(
-  process.env.DATABASE_URL,
+  process.env.MYSQL_URL,
   {
     dialect: "mysql",
     directory: "./models",
