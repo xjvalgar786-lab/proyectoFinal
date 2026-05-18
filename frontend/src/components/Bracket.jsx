@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 
-const API_URL = 'http://localhost:5000'
+const API_URL = 'https://mysql-production-afe3.up.railway.app'
 
 function Bracket() {
   const { id } = useParams()
