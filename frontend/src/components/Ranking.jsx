@@ -14,7 +14,7 @@ function Ranking() {
   const fetchRanking = async (page = 1) => {
     try {
       setLoading(true)
-      const response = await fetch(`https://mysql-production-afe3.up.railway.app/api/rankings/jugadores?page=${page}`)
+      const response = await fetch(`https://backend-production-966f2.up.railway.app/api/rankings/jugadores?page=${page}`)
       if (!response.ok) {
         throw new Error(`Error ${response.status}`)
       }

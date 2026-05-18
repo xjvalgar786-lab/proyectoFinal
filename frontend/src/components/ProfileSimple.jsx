@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
 
-const API_URL = 'https://mysql-production-afe3.up.railway.app'
+const API_URL = 'https://backend-production-966f2.up.railway.app'
 
 function Profile() {
   const { user } = useContext(AuthContext)

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
-const API_URL = 'https://mysql-production-afe3.up.railway.app'
+const API_URL = 'https://backend-production-966f2.up.railway.app'
 const PAGE_SIZE = 5
 
 function News() {

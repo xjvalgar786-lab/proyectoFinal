@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 
-const API_URL = 'https://mysql-production-afe3.up.railway.app' // backend
+const API_URL = 'https://backend-production-966f2.up.railway.app' // backend
 
 const initialRegister = { nombre: '', apellido: '', email: '', password: '', nacionalidad: '' }
 const initialLogin = { email: '', password: '' }
