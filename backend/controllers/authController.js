@@ -98,6 +98,7 @@ class AuthController {
         { expiresIn: "24h" }
       );
 
+      console.log("LOGIN OK - TOKEN:", token);
       // Configurar cookie HttpOnly
       res.cookie('token', token, {
         httpOnly: true,
