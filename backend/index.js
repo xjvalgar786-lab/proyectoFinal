@@ -2,7 +2,6 @@
 const express = require("express");
 // Importar librería path, para manejar rutas de ficheros en el servidor
 const path = require("path");
-const fs = require("fs");
 // Importar libreria CORS
 const cors = require("cors");
 // Importar cookie-parser para manejar cookies
@@ -58,27 +57,23 @@ app.use("/api/videos-publicas", videosPublicasRoutes);
 app.use("/api/componentes", componenteRoutes);
 app.use("/api/tipos", tipoRoutes);
 
+// Configurar el middleware para servir archivos estáticos desde el directorio 'public\old_js_vainilla'
+app.use(express.static(path.join(__dirname, "public","old_js_vainilla")));
+
 app.get("/", (req, res) => {
   res.send({
     status: "ok",
-    dbHost: process.env.DB_HOST || process.env.MYSQLHOST,
+    dbHost: process.env.DB_HOST,
   });
 });
-
-// Configurar el middleware para servir archivos estáticos desde el directorio 'public\old_js_vainilla'
-const publicPath = path.join(__dirname, "public", "old_js_vainilla");
-app.use(express.static(publicPath));
 
 // Middleware catch-all para SPA (Single Page Application) - debe ir al final
 app.use((req, res, next) => {
   if (req.path.startsWith("/api")) return next();
 
-  const indexFile = path.join(publicPath, "index.html");
-  if (fs.existsSync(indexFile)) {
-    return res.sendFile(indexFile);
-  }
-
-  res.status(404).send({ error: "Archivo estático no encontrado" });
+  res.sendFile(
+    path.join(__dirname, "public", "old_js_vainilla", "index.html")
+  );
 });
 
 
