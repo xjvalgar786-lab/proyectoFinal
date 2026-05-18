@@ -2,6 +2,17 @@ const { Sequelize } = require("sequelize");
 // Importar fichero de configuración con variables de entorno
 const config = require("./config");
 
+const { host, user, password, name, port } = config.db;
+
+if (!host || !user || !password || !name || !port) {
+  console.error("DB CONFIG INCOMPLETE:", {
+    host,
+    user,
+    name,
+    port,
+  });
+}
+
 // Instanciar sequelize  para conectar a mysql
 const sequelize = new Sequelize(
   config.db.name, // nombre bd
