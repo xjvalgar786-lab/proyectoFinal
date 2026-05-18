@@ -28,7 +28,30 @@ const port = process.env.PORT || 5000;
 // Configurar middleware para analizar JSON en las solicitudes
 app.use(express.json());
 // Configurar CORS para admitir cualquier origen
-app.use(cors());
+
+
+const allowedOrigins = [
+  "http://localhost:8081",
+  "http://localhost:3000",
+  "http://localhost:19006",
+  "http://localhost:19000",
+  "https://backend-production-966f2.up.railway.app",
+];
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // permitir Postman / apps móviles
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(null, true);
+    },
+    credentials: false,
+  })
+);
 // Configurar cookie-parser
 app.use(cookieParser());
 
