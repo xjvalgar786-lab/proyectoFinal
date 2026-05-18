@@ -3,18 +3,10 @@ const { Sequelize } = require("sequelize");
 const config = require("./config");
 
 // Instanciar sequelize  para conectar a mysql
-const sequelize = new Sequelize(
-  config.db.name, // nombre bd
-  config.db.user, // usuario
-  config.db.password, // password
-  {
-    // objeto con opciones de conexion
-    host: config.db.host, // Cambia esto por la dirección del servidor MySQL
-    port: config.db.port, // Cambia esto por el puerto del servidor MySql
-    dialect: "mysql", // Especificar el dialecto de la base de datos
-    logging: false, // Desactiva el logging de las consultas SQL
-  }
-);
+const sequelize = new Sequelize(process.env.MYSQL_URL, {
+  dialect: "mysql",
+  logging: false,
+});
 
 // Probar la conexión
 (async () => {
