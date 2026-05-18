@@ -70,7 +70,10 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("API funcionando");
+  res.send({
+    status: "ok",
+    dbHost: process.env.DB_HOST,
+  });
 });
 
 
