@@ -29,8 +29,18 @@ const port = process.env.PORT || 5000;
 app.use(express.json());
 // Configurar CORS para admitir cualquier origen
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "https://proyecto-final-frontend-five.vercel.app"
+];
+
 app.use(cors({
-  origin: "https://proyecto-final-frontend-five.vercel.app",
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error("Not allowed by CORS"));
+  },
   credentials: true
 }));
 
