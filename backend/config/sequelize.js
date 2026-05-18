@@ -2,8 +2,10 @@ const { Sequelize } = require("sequelize");
 // Importar fichero de configuración con variables de entorno
 const config = require("./config");
 
+const MYSQL_URL="mysql://root:hALRPbpoizlNaTkikCGrcBcomdzBgZDC@trolley.proxy.rlwy.net:39022/railway";
+
 // Instanciar sequelize  para conectar a mysql
-const sequelize = new Sequelize(process.env.MYSQL_URL, {
+const sequelize = new Sequelize(MYSQL_URL, {
   dialect: "mysql",
   logging: false,
 });
