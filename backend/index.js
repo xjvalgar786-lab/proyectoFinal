@@ -60,6 +60,13 @@ app.use("/api/tipos", tipoRoutes);
 // Configurar el middleware para servir archivos estáticos desde el directorio 'public\old_js_vainilla'
 app.use(express.static(path.join(__dirname, "public","old_js_vainilla")));
 
+app.get("/", (req, res) => {
+  res.send({
+    status: "ok",
+    dbHost: process.env.DB_HOST,
+  });
+});
+
 // Middleware catch-all para SPA (Single Page Application) - debe ir al final
 app.use((req, res, next) => {
   if (req.path.startsWith("/api")) return next();
@@ -67,13 +74,6 @@ app.use((req, res, next) => {
   res.sendFile(
     path.join(__dirname, "public", "old_js_vainilla", "index.html")
   );
-});
-
-app.get("/", (req, res) => {
-  res.send({
-    status: "ok",
-    dbHost: process.env.DB_HOST,
-  });
 });
 
 
