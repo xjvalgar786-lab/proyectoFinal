@@ -32,6 +32,15 @@ app.use(cors());
 // Configurar cookie-parser
 app.use(cookieParser());
 
+(async () => {
+  try {
+    await sequelize.authenticate();
+    console.log("Base de datos conectada");
+  } catch (error) {
+    console.error("Error DB:", error);
+  }
+})();
+
 // Sincronizar base de datos
 (async () => {
   try {
@@ -67,6 +76,11 @@ app.use((req, res, next) => {
     path.join(__dirname, "public", "old_js_vainilla", "index.html")
   );
 });
+
+app.get("/", (req, res) => {
+  res.send("API funcionando");
+});
+
 
 // Iniciar el servidor
 app.listen(port, () => {
