@@ -1,21 +1,13 @@
-require("dotenv").config({
-  path: `.env.${process.env.NODE_ENV || "development"}`,
-});
+require("dotenv").config();
 
 module.exports = {
   port: process.env.PORT || 5000,
   db: {
-    host: process.env.DB_HOST || "localhost",
-    user: process.env.DB_USER || "root",
-    password: process.env.DB_PASSWORD || "root",
-    name: process.env.DB_NAME || "tfgTT",
-    port: process.env.DB_PORT || 3306,
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    name: process.env.DB_NAME,
+    port: process.env.DB_PORT,
   },
-  secretKey: process.env.SECRET_KEY || "default_secret",
+  secretKey: process.env.JWT_SECRET,
 };
-
-console.log("DBNAME:",process.env.DB_NAME);
-console.log("DBHOST:",process.env.DB_HOST);
-console.log("DBUSER:",process.env.DB_USER);
-console.log("DBPORT:",process.env.DB_PORT);
-console.log("NODE_ENV:",process.env.NODE_ENV);
