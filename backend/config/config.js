@@ -1,13 +1,36 @@
 require("dotenv").config();
 
+const parseDbUrl = (url) => {
+  if (!url) return {};
+
+  try {
+    const parsed = new URL(url);
+    return {
+      host: parsed.hostname,
+      user: parsed.username,
+      password: parsed.password,
+      name: parsed.pathname ? parsed.pathname.replace(/^\//, "") : undefined,
+      port: parsed.port,
+    };
+  } catch (error) {
+    return {};
+  }
+};
+
+const mysqlUrl = parseDbUrl(process.env.MYSQL_URL || process.env.MYSQL_PUBLIC_URL);
+
 module.exports = {
   port: process.env.PORT || 5000,
   db: {
-    host: process.env.DB_HOST || process.env.MYSQLHOST,
-    user: process.env.DB_USER || process.env.MYSQLUSER,
-    password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD,
-    name: process.env.DB_NAME || process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE,
-    port: process.env.DB_PORT || process.env.MYSQLPORT,
+    host: process.env.DB_HOST || process.env.MYSQLHOST || mysqlUrl.host,
+    user: process.env.DB_USER || process.env.MYSQLUSER || mysqlUrl.user,
+    password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || mysqlUrl.password,
+    name:
+      process.env.DB_NAME ||
+      process.env.MYSQLDATABASE ||
+      process.env.MYSQL_DATABASE ||
+      mysqlUrl.name,
+    port: process.env.DB_PORT || process.env.MYSQLPORT || mysqlUrl.port,
   },
   secretKey: process.env.JWT_SECRET,
 };
