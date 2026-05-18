@@ -29,6 +29,14 @@ const port = process.env.PORT || 5000;
 app.use(express.json());
 // Configurar CORS para admitir cualquier origen
 
+const app = express();
+const port = process.env.PORT || 5000;
+
+app.set('trust proxy', 1);
+
+// middlewares
+app.use(express.json());
+app.use(cookieParser());
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",
