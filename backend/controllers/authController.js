@@ -49,7 +49,7 @@ class AuthController {
       res.cookie('token', token, {
         httpOnly: true,
         secure: true,
-        sameSite: "none",
+       // sameSite: "none",
         maxAge: 24 * 60 * 60 * 1000 // 24 horas
       });
 
@@ -103,9 +103,9 @@ class AuthController {
       res.cookie('token', token, {
         httpOnly: true,
         secure: true,
-         path: "/",
-         domain: ".railway.app",
-        sameSite: "none",
+        // path: "/",
+        // domain: ".railway.app",
+        // sameSite: "none",
         maxAge: 24 * 60 * 60 * 1000 // 24 horas
       });
 
