@@ -11,3 +11,5 @@ module.exports = {
   },
   secretKey: process.env.JWT_SECRET,
 };
+
+console.log("process.env.JWT_SECRET:",process.env.JWT_SECRET);
