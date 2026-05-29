@@ -29,7 +29,7 @@ const port = process.env.PORT || 5000;
 app.use(express.json());
 // Configurar CORS para admitir cualquier origen
 
-app.set('trust proxy', 1);
+// app.set('trust proxy', 1);
 
 // middlewares
 app.use(express.json());
@@ -41,11 +41,11 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    return callback(new Error("Not allowed by CORS"));
-  },
+ // origin: function (origin, callback) {
+  //  if (!origin) return callback(null, true);
+  //  if (allowedOrigins.includes(origin)) return callback(null, true);
+  //  return callback(new Error("Not allowed by CORS"));
+  // },
   credentials: true
 }));
 
