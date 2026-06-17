@@ -280,7 +280,7 @@ function Profile() {
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h2 className="text-white mb-1">Mi Perfil</h2>
-              <p className="text-white mb-0">Revisa tus estadísticas y actualiza tu información personal sin perder el estilo oscuro.</p>
+              <p className="text-white mb-0">Revisa tus estadísticas y actualiza tu información personal.</p>
             </div>
             <span className="badge bg-warning text-dark py-2 px-3">Jugador</span>
           </div>
